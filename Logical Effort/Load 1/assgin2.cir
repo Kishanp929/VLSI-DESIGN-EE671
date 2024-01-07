@@ -1,0 +1,69 @@
+* Minimum Inverter
+*.subckt inv supply Inp Output
+*  This subcircuit defines a CMOS inverter with equal n and p widths
+*MP1 Output Inp Supply Supply cmosp
+*+ L=0.18U W=6.6775U AD = 2.4039P AS =  2.4039P PD = 7.035U PS = 7.035U
+*MN1 Output Inp 0      0      cmosn
+*+ L=0.18U W=0.4322U AD = 2.4039P AS = 2.4039P PD = 7.035U PS = 7.035U
+*.ends
+
+* Minimum Inverter
+.subckt inv supply Inp Output
+*  This subcircuit defines a CMOS inverter with equal n and p widths
+MP1 Output Inp Supply Supply cmosp
++ L=0.18U W=1.3355U AD = 0.48078P AS =  0.48078P PD = 3.391U PS = 3.391U
+MN1 Output Inp 0      0      cmosn
++ L=0.18U W=0.4322U AD = 0.155592P AS =  0.155592P PD = 1.5844U PS = 1.5844U
+.ends
+
+
+
+vdd supply 0 dc 1.8
+
+X1 supply pgen 1 inv    
+     
+*1st inverter
+
+X21 supply 1 2 inv
+
+X22 supply 1 2 inv 
+
+X23 supply 1 2 inv
+
+C1 2 0 0.1pF
+
+X2 supply 1 dutin inv
+
+X3 supply dutin dutout inv
+
+Xtestload41 supply dutout 3 inv
+
+
+X51 supply 3 4 inv
+
+X52 supply 3 4 inv
+
+X53 supply 3 4 inv
+
+X54 supply 3 4 inv
+
+C2 4 0 0.1pF
+
+
+.include models-180nm
+
+
+ * pulse with time period of Trep, rise and fall times = Trep/20
+.param Trep= 5n
+.param Trf = {Trep/20.0}
+.param Tw = {Trep/2.0 - Trf}
+.param hival=1.8
+.param loval=0.0
+Vpulse pgen 0 DC 0 PULSE({loval} {hival} {Tw} {Trf} {Trf} {Tw} {Trep})
+.tran 0.1pS {3*Trep} 0nS
+
+.control
+run
+meas tran invdelay1 TRIG v(dutin) VAL=0.9 RISE=2 TARG v(dutout) VAL=0.9 FALL=2
+.endc
+.end
