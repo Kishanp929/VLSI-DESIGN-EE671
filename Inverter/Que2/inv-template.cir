@@ -1,0 +1,28 @@
+* Minimum Inverter
+.subckt inv supply Inp Output
+*  This subcircuit defines a CMOS inverter with equal n and p widths
+MP1 Output Inp Supply Supply cmosp
++ L=0.18U W=1.3355U AD = 0.48078P AS =  0.48078P PD = 3.391U PS = 3.391U
+MN1 Output Inp 0      0      cmosn
++ L=0.18U W=0.4322U AD = 0.155592P AS =  0.155592P PD = 1.5844U PS = 1.5844U
+.ends
+
+vdd supply 0 dc 1.8
+
+V1 Ck 0 0
+*  Device under test
+x3  supply Ck dutout inv
+* Load Capacitor
+C3 dutout 0 0.05pF
+
+.include models-180nm
+
+
+.dc V1 0V 1.8V 0.01
+
+.control
+run
+plot V(dutout) vs V(Ck)
+print deriv(V(dutout)) V(dutout)> derivated.txt
+.endc
+.end

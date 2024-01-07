@@ -1,0 +1,52 @@
+* Implementing ~(A.(B+C))
+.subckt logic A B C Output Supply
+*  This subcircuit defines a CMOS inverter with equal n and p widths
+
+MP1 Output A Supply Supply cmosp
++ L=0.18U W=1.3355U AD = 0.48078P AS =  0.48078P PD = 3.391U PS = 3.391U
+
+MP2 1 B Supply Supply cmosp
++ L=0.18U W=1.3355U AD = 0.48078P AS =  0.48078P PD = 3.391U PS = 3.391U
+
+MP3 Output C 1  1 cmosp
++ L=0.18U W=1.3355U AD = 0.48078P AS =  0.48078P PD = 3.391U PS = 3.391U
+
+
+MN1 Output A  0  0 cmosn
++ L=0.18U W=0.4322U AD = 0.155592P AS =  0.155592P PD = 1.5844U PS = 1.5844U
+
+MN2 Output B  2  2 cmosn
++ L=0.18U W=0.4322U AD = 0.155592P AS =  0.155592P PD = 1.5844U PS = 1.5844U
+
+MN3 2  C  0  0 cmosn
++ L=0.18U W=0.4322U AD = 0.155592P AS =  0.155592P PD = 1.5844U PS = 1.5844U
+
+.ends
+
+
+vdd Supply 0 dc 1.8
+
+x3 1.8V Bclk 0V dutout Supply logic
+
+C3 dutout 0 0.05pF
+
+.include models-180nm
+
+*TRANSIENT ANALYSIS with pulse inputs
+VCk  Bclk   0 DC 0 PULSE(0 1.8 0nS 25pS 25pS 4nS 8.0nS)
+.tran 1pS 35nS 0nS
+
+
+.control
+run
+plot 4.0+V(Bclk) V(dutout)
+print V(dutout) > data.txt
+meas tran inrise TRIG v(Bclk) VAL=0.18 RISE=2 TARG v(Bclk) VAL=1.62 RISE=2
+meas tran infall TRIG v(Bclk) VAL=1.62 FALL=2 TARG v(Bclk) VAL=0.18 FALL=2
+meas tran drise TRIG v(dutout) VAL=0.27808 RISE= 2 TARG v(dutout) VAL=0.45472 RISE= 2
+meas tran dfall TRIG v(dutout) VAL=0.45472 FALL= 2 TARG v(dutout) VAL=0.27808 FALL= 2
+.endc
+.end
+
+
+
